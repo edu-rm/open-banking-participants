@@ -3,10 +3,12 @@ import React, { useEffect } from 'react';
 
 import { Container } from './styles';
 
-function Participants() {
+// import { participants } from '../../data/participants';
 
+function Participants() {
+  // console.log('participants', participants)
   useEffect(() => {
-    axios.get('http://data.directory.openbankingbrasil.org.br/participants').then(res => {
+    axios.get('https://data.directory.openbankingbrasil.org.br/participants').then(res => {
       console.log(res.data);
     })
   }, [])
