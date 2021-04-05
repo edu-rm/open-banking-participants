@@ -7,10 +7,6 @@ import { SearchOutlined } from '@ant-design/icons';
 
 import { Container } from './styles';
 
-// import { participants } from '../../data/participants';
-
-
-
 function Participants() {
   const [participantsSerialized, setParticipantsSerialized] = useState();
   const [searchText, setSearchText] = useState();
@@ -23,32 +19,43 @@ function Participants() {
     x.send();
     x.onload = x.onerror = function(res) {
       const parsed = JSON.parse(res.currentTarget.response);
-
+      // .filter(item => !item.AuthorisationServers[0].DeveloperPortalUri.includes('naoseaplica'))
       const serialized = parsed.map(item => {
         return {
           name: item.OrganisationName,
-          developerPortal: item.AuthorisationServers[0].DeveloperPortalUri
+          developerPortal: item.AuthorisationServers[0].DeveloperPortalUri,
+          apis: item.AuthorisationServers[0].ApiResources
         }
       })
       setParticipantsSerialized(serialized)
     };
-    // axios.get('https://cors-anywhere.herokuapp.com/https://data.directory.openbankingbrasil.org.br/participants').then(res => {
-    //   const serialized = res.data.map(item => {
-    //     return {
-    //       name: item.OrganisationName,
-    //       developerPortal: item.AuthorisationServers[0].DeveloperPortalUri
-    //     }
-    //   })
-    //   setParticipantsSerialized(serialized);
-    // })
   }, [])
 
-  // const participantsSerialized = participants.map(item=> {
-  //   return {
-  //     name: item.OrganisationName,
-  //     developerPortal: item.AuthorisationServers[0].DeveloperPortalUri
-  //   }
-  // })
+  const expandedRowRender = (row) => {
+    const apis = row.apis.map(api => {
+      return {
+        ...api,
+        ...api.ApiDiscoveryEndpoints[0],
+      }
+    });
+
+    const columns = [
+      { 
+        title: 'Family type', 
+        dataIndex: 'ApiFamilyType', 
+        key: 'ApiFamilyType' 
+      },
+      { title: 'Name', dataIndex: 'name', key: 'name' },
+      {
+        title: 'End Points',
+        key: 'ApiEndpoint',
+        dataIndex: 'ApiEndpoint', 
+        render: (api) => (<a target="_blank" rel="noreferrer" href={api}>Acessar</a>),
+      },
+    ];
+    
+    return <Table columns={columns} dataSource={apis} pagination={false} />;
+  };
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -144,7 +151,7 @@ function Participants() {
   return (
     <Container>
       <h1>Participants</h1>
-      <Table columns={columns} dataSource={participantsSerialized}/>
+      <Table columns={columns} dataSource={participantsSerialized} expandable={{ expandedRowRender }}/>
     </Container>
   );
 }
