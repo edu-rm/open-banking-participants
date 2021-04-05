@@ -1,4 +1,4 @@
-import axios from 'axios';
+// import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import Highlighter from 'react-highlight-words';
 
@@ -17,15 +17,30 @@ function Participants() {
   const [searchedColumn, setSearchedColumn] = useState();
 
   useEffect(() => {
-    axios.get('https://data.directory.openbankingbrasil.org.br/participants').then(res => {
-      const serialized = res.data.map(item => {
+    var cors_api_url = 'https://cors-anywhere.herokuapp.com/';
+    var x = new XMLHttpRequest();
+    x.open('get', cors_api_url + 'https://data.directory.openbankingbrasil.org.br/participants');
+    x.send();
+    x.onload = x.onerror = function(res) {
+      const parsed = JSON.parse(res.currentTarget.response);
+
+      const serialized = parsed.map(item => {
         return {
           name: item.OrganisationName,
           developerPortal: item.AuthorisationServers[0].DeveloperPortalUri
         }
       })
-      setParticipantsSerialized(serialized);
-    })
+      setParticipantsSerialized(serialized)
+    };
+    // axios.get('https://cors-anywhere.herokuapp.com/https://data.directory.openbankingbrasil.org.br/participants').then(res => {
+    //   const serialized = res.data.map(item => {
+    //     return {
+    //       name: item.OrganisationName,
+    //       developerPortal: item.AuthorisationServers[0].DeveloperPortalUri
+    //     }
+    //   })
+    //   setParticipantsSerialized(serialized);
+    // })
   }, [])
 
   // const participantsSerialized = participants.map(item=> {
